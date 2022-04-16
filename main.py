@@ -28,7 +28,7 @@ def login():
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            return redirect("/news")
+            return redirect("/blog")
         return render_template('login.html',
                                message="Неправильный логин или пароль",
                                form=form)
@@ -64,16 +64,32 @@ def add_news():
     form = NewsForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        news = News()
-        news.title = form.title.data
-        news.content = form.content.data
-        news.is_private = form.is_private.data
+        news = News(
+            title=form.title.data,
+            content=form.content.data,
+            is_private=form.is_private.data
+        )
         current_user.news.append(news)
         db_sess.merge(current_user)
         db_sess.commit()
-        return redirect('/')
+        return redirect('/blog')
     return render_template('news.html', title='Добавление новости',
                            form=form)
+
+@app.route('/news_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def news_delete(id):
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).filter(News.id == id,
+                                      News.user == current_user
+                                      ).first()
+    if news:
+        db_sess.delete(news)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/blog')
+
 
 @app.route('/news/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -100,7 +116,7 @@ def edit_news(id):
             news.content = form.content.data
             news.is_private = form.is_private.data
             db_sess.commit()
-            return redirect('/')
+            return redirect('/blog')
         else:
             abort(404)
     return render_template('news.html',
@@ -111,12 +127,15 @@ def edit_news(id):
 @app.route("/")
 def index():
     return render_template('base.html', title='Главная')
-    #return redirect('/news')
 
-@app.route("/news")
-def new():
+@app.route("/blog")
+def page():
     db_sess = db_session.create_session()
-    news = db_sess.query(News).filter(News.is_private != True)
+    if current_user.is_authenticated:
+        news = db_sess.query(News).filter(
+            (News.user == current_user) | (News.is_private != True))
+    else:
+        news = db_sess.query(News).filter(News.is_private != True)
     return render_template("index.html", news=news)
 
 
@@ -130,4 +149,3 @@ app.run(port=8080, host='127.0.0.1')
 #def main():
     #db_session.global_init("db/blogs.db")
     #app.run()
-
