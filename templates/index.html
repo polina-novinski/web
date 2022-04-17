@@ -2,6 +2,9 @@
 
 {% block content %}
 <h1>Записи в блоге</h1>
+{% if current_user.is_authenticated %}
+    <a href="news" class="btn btn-secondary">Добавить новость</a>
+{% endif %}
 {% for item in news%}
 <div class="col-md6 border rounded">
     <h2>{{item.title}}</h2>
@@ -12,17 +15,15 @@
         Автор - {{item.user.name}}, Дата написания - {{item.created_date}}
     </div>
 </div>
-{% if current_user.is_authenticated and current_user == item.user %}
-{% if current_user.is_authenticated %}
-    <a href="news" class="btn btn-secondary">Добавить новость</a>
-{% endif %}
-    <div>
-        <a href="/news/{{ item.id }}" class="btn btn-warning">
-            Изменить
-        </a>
-        <a href="/news_delete/{{ item.id }}" class="btn btn-danger">
-            Удалить
-        </a>
-    </div>
+<div>
+    {% if current_user.is_authenticated and current_user == item.user %}
+    <a href="/news/{{ item.id }}" class="btn btn-warning">
+        Изменить
+    </a>
+    <a href="/news_delete/{{ item.id }}" class="btn btn-danger">
+        Удалить
+    </a>
+    {% endif %}
+</div>
 {% endfor %}
 {% endblock %}
