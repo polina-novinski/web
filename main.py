@@ -12,6 +12,7 @@ from requests import request
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+db_session.global_init("db/blogs.db")
 login_manager = LoginManager()
 login_manager.init_app(app)
 
