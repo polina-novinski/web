@@ -32,6 +32,15 @@
             </p>
         {% endfor %}
     </p>
+    <p>
+        {{ form.geopos.label }}<br>
+        {{ form.geopos(class="form-control") }}<br>
+        {% for error in form.geopos.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {{message}}
 </form>
