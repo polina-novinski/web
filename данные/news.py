@@ -18,4 +18,5 @@ class News(SqlAlchemyBase):
 
     user_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
+    geopos = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     user = orm.relation('User')
