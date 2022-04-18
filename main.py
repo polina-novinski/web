@@ -7,14 +7,16 @@ from register_form import RegisterForm
 from flask_login import LoginManager, LoginManager, login_user, login_required, logout_user, current_user
 from login_form import LoginForm
 from add_news import NewsForm
+from map import get_map
 #import requests
 from requests import request
-
+import base64
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-db_session.global_init("db/blogs.db")
+# db_session.global_init("db/blogs.db")
 login_manager = LoginManager()
 login_manager.init_app(app)
+map_file = 'static/img/temp.jpg'
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -91,8 +93,20 @@ def news_delete(id):
         abort(404)
     return redirect('/blog')
 
+@app.route('/show_geo/<int:id>', methods=['GET', 'POST'])
+@login_required
+def show_geo(id):
+    form = NewsForm()
+    db_sess = db_session.create_session()
+    geo = db_sess.query(News).filter(News.id == id,
+                                      News.user == current_user
+                                      ).first()
+    if geo:
+        form.geopos.data = geo.geopos
+    return redirect('/geo')
 
-@app.route('/news/<int:id>', methods=['GET', 'POST'])
+
+@app.route('/edit_news/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_news(id):
     form = NewsForm()
@@ -137,7 +151,25 @@ def page():
             (News.user == current_user) | (News.is_private != True))
     else:
         news = db_sess.query(News).filter(News.is_private != True)
+    ##
+    map_list =[]
+    for new in news:
+        if new.geopos:
+            #1 по имени получаем координаты
+            #2 по координатам получаем карту
+            #3
+            pass
+
+    ##
     return render_template("index.html", news=news)
+
+@app.route('/geo')
+def geo():
+    map = get_map()
+    with open(map_file, 'wb') as file:
+        file.write(map)
+        return f'''
+        <img src="{map_file}"/>'''
 
 
 @app.route('/logout')
@@ -147,6 +179,7 @@ def logout():
     return redirect("/")
 
 app.run(port=8080, host='127.0.0.1')
-#def main():
-    #db_session.global_init("db/blogs.db")
-    #app.run()
+# def main():
+#     db_session.global_init("db/blogs.db")
+#     app.run()
+
