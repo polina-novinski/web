@@ -13,7 +13,7 @@ from requests import request
 import base64
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-# db_session.global_init("db/blogs.db")
+db_session.global_init("db/blogs.db")
 login_manager = LoginManager()
 login_manager.init_app(app)
 map_file = 'static/img/temp.jpg'
