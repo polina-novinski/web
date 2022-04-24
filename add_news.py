@@ -9,4 +9,5 @@ class NewsForm(FlaskForm):
     content = TextAreaField("Содержание")
     is_private = BooleanField("Личное")
     geopos = TextAreaField("Геолокация")
+    likes = TextAreaField(0)
     submit = SubmitField('Применить')
