@@ -16,7 +16,7 @@ class News(SqlAlchemyBase):
                                      default=datetime.datetime.now)
     geopos = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     is_private = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
-
+    likes = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     user_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
     user = orm.relation('User')
