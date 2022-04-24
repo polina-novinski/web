@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, request, url_for
 from flask import abort
 from data import db_session
 from data.users import User
@@ -9,10 +9,9 @@ from login_form import LoginForm
 from add_news import NewsForm
 from map import get_map
 #import requests
-from requests import request
+#from requests import request
 
 
-import base64
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 db_session.global_init("db/blogs.db")
@@ -104,7 +103,7 @@ def show_geo(id):
     map = get_map(geo)
     with open(map_file, 'wb') as file:
         file.write(map)
-        return f'''<img src="{map_file}" alt="не нашлась">'''
+        return f'''<img src="{url_for('static', filename='img/temp.jpg')}" alt="не нашлась">'''
         #return f'''<img src="{map_file} alt="""/>'''
 
 
@@ -148,7 +147,6 @@ def edit_news(id):
             news.title = form.title.data
             news.content = form.content.data
             news.is_private = form.is_private.data
-            #news.geopos = form.geopos.data
             db_sess.commit()
             return redirect('/blog')
         else:
@@ -172,31 +170,14 @@ def news_page():
             (News.user == current_user) | (News.is_private != True))
     else:
         news = db_sess.query(News).filter(News.is_private != True)
-    ##
-    map_list =[]
-    #for new in news:
-        #if new.geopos:
-            #1 по имени получаем координаты
-            #2 по координатам получаем карту
-            #3
-            #pass
-
-    ##
     return render_template("blog.html", news=news)
 
 
-#@app.route('/n')
-#def image():
-    #return f'''<img src="{url_for('static', filename='img/av.jpg')}"
-          # alt="здесь должна была быть картинка, но не нашлась">'''
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return redirect("/")
+    return redirect("/login")
 
 app.run(port=8080, host='127.0.0.1')
-# def main():
-#     db_session.global_init("db/blogs.db")
-#     app.run()
