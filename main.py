@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, url_for
 from flask import abort
 from data import db_session
 from data.users import User
@@ -99,12 +99,12 @@ def news_delete(id):
 @login_required
 def show_geo(id):
     db_sess = db_session.create_session()
-    geo = db_sess.query(News.geopos).filter(News.id == id).all()
+    geo = db_sess.query(News.geopos).filter(News.id == id).first()
     map = get_map(geo)
     with open(map_file, 'wb') as file:
         file.write(map)
-        return f'''
-            <img src="{map_file}"/>'''
+        return f'''<img src="{map_file}" alt="не нашлась">'''
+        #return f'''<img src="{map_file} alt="""/>'''
 
 
 
@@ -133,7 +133,7 @@ def edit_news(id):
             news.title = form.title.data
             news.content = form.content.data
             news.is_private = form.is_private.data
-            news.geopos = form.geopos.data
+            #news.geopos = form.geopos.data
             db_sess.commit()
             return redirect('/blog')
         else:
@@ -145,10 +145,12 @@ def edit_news(id):
 
 @app.route("/")
 def index():
-    return render_template('base.html', title='Главная')
+    return render_template('index.html', title='Главная')
+                           #content='<img src="static/img/av.jpg" alt="">')
+
 
 @app.route("/blog")
-def page():
+def news_page():
     db_sess = db_session.create_session()
     if current_user.is_authenticated:
         news = db_sess.query(News).filter(
@@ -165,9 +167,13 @@ def page():
             #pass
 
     ##
-    return render_template("index.html", news=news)
+    return render_template("blog.html", news=news)
 
 
+#@app.route('/n')
+#def image():
+    #return f'''<img src="{url_for('static', filename='img/av.jpg')}"
+          # alt="здесь должна была быть картинка, но не нашлась">'''
 
 @app.route('/logout')
 @login_required
