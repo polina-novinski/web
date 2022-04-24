@@ -11,6 +11,7 @@ from map import get_map
 #import requests
 from requests import request
 
+
 import base64
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -107,6 +108,20 @@ def show_geo(id):
         #return f'''<img src="{map_file} alt="""/>'''
 
 
+@app.route('/news_like/<int:id>', methods=['GET', 'POST'])
+@login_required
+def like(id):
+    form = NewsForm()
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).filter(News.id == id
+                                      ).first()
+    if news:
+        news.likes += 1
+        form.likes.data = news.likes
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/blog')
 
 @app.route('/edit_news/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -185,4 +200,3 @@ app.run(port=8080, host='127.0.0.1')
 # def main():
 #     db_session.global_init("db/blogs.db")
 #     app.run()
-
