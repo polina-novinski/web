@@ -10,6 +10,7 @@ from add_news import NewsForm
 from map import get_map
 #import requests
 from requests import request
+
 import base64
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -70,7 +71,8 @@ def add_news():
         news = News(
             title=form.title.data,
             content=form.content.data,
-            is_private=form.is_private.data
+            is_private=form.is_private.data,
+            geopos=form.geopos.data
         )
         current_user.news.append(news)
         db_sess.merge(current_user)
@@ -96,14 +98,14 @@ def news_delete(id):
 @app.route('/show_geo/<int:id>', methods=['GET', 'POST'])
 @login_required
 def show_geo(id):
-    form = NewsForm()
     db_sess = db_session.create_session()
-    geo = db_sess.query(News).filter(News.id == id,
-                                      News.user == current_user
-                                      ).first()
-    if geo:
-        form.geopos.data = geo.geopos
-    return redirect('/geo')
+    geo = db_sess.query(News.geopos).filter(News.id == id).all()
+    map = get_map(geo)
+    with open(map_file, 'wb') as file:
+        file.write(map)
+        return f'''
+            <img src="{map_file}"/>'''
+
 
 
 @app.route('/edit_news/<int:id>', methods=['GET', 'POST'])
@@ -119,6 +121,7 @@ def edit_news(id):
             form.title.data = news.title
             form.content.data = news.content
             form.is_private.data = news.is_private
+            form.geopos.data = news.geopos
         else:
             abort(404)
     if form.validate_on_submit():
@@ -130,6 +133,7 @@ def edit_news(id):
             news.title = form.title.data
             news.content = form.content.data
             news.is_private = form.is_private.data
+            news.geopos = form.geopos.data
             db_sess.commit()
             return redirect('/blog')
         else:
@@ -153,23 +157,16 @@ def page():
         news = db_sess.query(News).filter(News.is_private != True)
     ##
     map_list =[]
-    for new in news:
-        if new.geopos:
+    #for new in news:
+        #if new.geopos:
             #1 по имени получаем координаты
             #2 по координатам получаем карту
             #3
-            pass
+            #pass
 
     ##
     return render_template("index.html", news=news)
 
-@app.route('/geo')
-def geo():
-    map = get_map()
-    with open(map_file, 'wb') as file:
-        file.write(map)
-        return f'''
-        <img src="{map_file}"/>'''
 
 
 @app.route('/logout')
