@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Записи в блоге</h1>
+<div class="alert alert-danger" role="alert" style="font-weight:bolder-style:italic">
+    ЗАПИСИ В БЛОГЕ
+</div>
 {% if current_user.is_authenticated %}
     <a href="news" class="btn btn-outline-secondary">Добавить новость</a>
 {% endif %}
@@ -17,10 +19,6 @@
 
 </div>
 <div>
-    {% if current_user.is_authenticated and current_user == item.user %}
-    <a href="/edit_news/{{ item.id }}" class="btn btn-outline-warning">
-        Изменить
-    </a>
     {% if item.geopos != ''%}
     <a href="/show_geo/{{ item.id }}" class="btn btn-outline-primary">
         Геолокация
@@ -28,6 +26,10 @@
     {% endif %}
     <a href="/news_like/{{ item.id }}" class="btn btn-outline-success">
         Оценить
+    </a>
+    {% if current_user.is_authenticated and current_user == item.user %}
+    <a href="/edit_news/{{ item.id }}" class="btn btn-outline-warning">
+        Изменить
     </a>
     <a href="/news_delete/{{ item.id }}" class="btn btn-outline-danger">
         Удалить
