@@ -4,12 +4,10 @@ from data import db_session
 from data.users import User
 from data.news import News
 from register_form import RegisterForm
-from flask_login import LoginManager, LoginManager, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from login_form import LoginForm
 from add_news import NewsForm
 from map import get_map
-#import requests
-#from requests import request
 
 
 app = Flask(__name__)
@@ -104,7 +102,7 @@ def show_geo(id):
     with open(map_file, 'wb') as file:
         file.write(map)
         return f'''<img src="{url_for('static', filename='img/temp.jpg')}" alt="не нашлась">'''
-        #return f'''<img src="{map_file} alt="""/>'''
+        
 
 
 @app.route('/news_like/<int:id>', methods=['GET', 'POST'])
@@ -159,7 +157,7 @@ def edit_news(id):
 @app.route("/")
 def index():
     return render_template('index.html', title='Главная')
-                           #content='<img src="static/img/av.jpg" alt="">')
+                          
 
 
 @app.route("/blog")
